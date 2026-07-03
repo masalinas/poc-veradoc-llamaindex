@@ -1,6 +1,6 @@
 # search.py
-import logging
 import os
+import logging
 import lancedb
 import ollama
 

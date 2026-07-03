@@ -6,9 +6,9 @@ import urllib.parse
 import lancedb
 import pyarrow as pa
 
+from llama_index.core.readers.base import BaseReader
 from llama_index.core import VectorStoreIndex, Document as LlamaDocument
 from llama_index.core.node_parser import TokenTextSplitter
-from llama_index.core.readers.base import BaseReader
 from llama_index.core.ingestion import IngestionPipeline
 from llama_index.readers.s3 import S3Reader
 from llama_index.readers.file import PDFReader
@@ -24,12 +24,6 @@ from config import *
 # Configuración del Logger para producción en VeraDoc
 logger = logging.getLogger("veradoc.ingestion")
 logging.basicConfig(level=logging.INFO)
-
-try:
-    import aspose.words as aw
-    ASPOSE_AVAILABLE = True
-except ImportError:
-    ASPOSE_AVAILABLE = False
 
 TEST_BUCKET = "veradoc-datalake"
 
