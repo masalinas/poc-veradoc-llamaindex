@@ -1,17 +1,28 @@
 import os
+import sys
 import logging
 import argparse
-import sys
 import urllib.parse
-import lancedb
 import pyarrow as pa
+import lancedb
 
 from llama_index.core.readers.base import BaseReader
 from llama_index.core import VectorStoreIndex, Document as LlamaDocument
 from llama_index.core.node_parser import TokenTextSplitter
 from llama_index.core.ingestion import IngestionPipeline
 from llama_index.readers.s3 import S3Reader
-from llama_index.readers.file import PDFReader
+from llama_index.readers.file import \
+    RTFReader, \
+    MarkdownReader, \
+    DocxReader, \
+    PDFReader, \
+    XMLReader, \
+    CSVReader, \
+    PandasExcelReader, \
+    PptxReader, \
+    EpubReader, \
+    ImageReader
+
 from llama_index.readers.legacy_office import LegacyOfficeReader
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.vector_stores.lancedb import LanceDBVectorStore
@@ -31,18 +42,18 @@ TEST_BUCKET = "veradoc-datalake"
 UNIVERSAL_METADATA_FIELDS = ["file_name", "file_path", "page_label"]
 
 # Extractor personalizado para Imágenes (OCR)
-class OCRReader(BaseReader):
-    def load_data(self, file_path: os.PathLike, extra_info: dict = None, fs = None, **kwargs) -> list[LlamaDocument]:
-        # If a file system is passed, we should read it through the fs object
-        if fs is not None:
-            with fs.open(file_path, "rb") as f:
-                image = Image.open(f)
-                text = pytesseract.image_to_string(image, lang='spa')
-        else:
-            image = Image.open(file_path)
-            text = pytesseract.image_to_string(image, lang='spa')
+# class OCRReader(BaseReader):
+#     def load_data(self, file_path: os.PathLike, extra_info: dict = None, fs = None, **kwargs) -> list[LlamaDocument]:
+#         # If a file system is passed, we should read it through the fs object
+#         if fs is not None:
+#             with fs.open(file_path, "rb") as f:
+#                 image = Image.open(f)
+#                 text = pytesseract.image_to_string(image, lang='spa')
+#         else:
+#             image = Image.open(file_path)
+#             text = pytesseract.image_to_string(image, lang='spa')
         
-        return [LlamaDocument(text=text, metadata=extra_info or {})]
+#         return [LlamaDocument(text=text, metadata=extra_info or {})]
  
 def _get_minio_metadata(bucket_name: str, object_key: str) -> tuple[set[str], str]:
     """
@@ -68,12 +79,25 @@ def _get_minio_metadata(bucket_name: str, object_key: str) -> tuple[set[str], st
 def get_llamaindex_file_extractor() -> dict:
     """Mapea cada extensión con su lector específico en LlamaIndex"""
     return {
+        ".rtf": RTFReader(),
+        ".md": MarkdownReader(),
+        #".xml": XMLReader(),
+        ".docx": DocxReader(),
+        ".doc": LegacyOfficeReader(),
+        #".csv": CSVReader(),
+        #".xlsx": PandasExcelReader(),
+        #".xls": PandasExcelReader(),        
+        ".pptx": PptxReader(),
+        ".pptm": PptxReader(), 
+        ".ppt": LegacyOfficeReader(),
         ".pdf": PDFReader(),
-        ".doc": LegacyOfficeReader(),        
-        ".png": OCRReader(),
-        ".jpg": OCRReader(),
-        ".jpeg": OCRReader(),
-        #".doc": AsposeDocReader(),        
+        ".epub": EpubReader(),
+        #".png": OCRReader(),
+        #".jpg": OCRReader(),
+        #".jpeg": OCRReader(),
+        ".png": ImageReader(parse_text=True, text_type="plain_text"),
+        ".jpg": ImageReader(parse_text=True, text_type="plain_text"),
+        ".jpeg": ImageReader(parse_text=True,  text_type="plain_text"),
         # Formatos como .docx, .txt, .md, .csv se manejan automáticamente 
         # por los defaults de LlamaIndex si no los especificas aquí.
     }

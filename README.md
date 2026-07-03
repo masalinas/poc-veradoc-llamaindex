@@ -27,7 +27,16 @@ $ pip install python-dotenv \
               llama-index-embeddings-ollama \
               llama-index-vector-stores-lancedb \
               lancedb \
-              pypdf \
+              openpyxl \
+              docx2txt \
+              striprtf \
+              aspose-words \
+              aspose-slides \
+              openpyxl \
+              python-pptx \
+              pypdf \                      
+              xlrd \
               pytesseract \
-              aspose-words
+              Pillow \
+              EbookLib
 ```              
