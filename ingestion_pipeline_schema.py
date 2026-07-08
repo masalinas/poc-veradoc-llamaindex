@@ -75,7 +75,7 @@ class SourceObject:
     bucket: str
     key: str
     tags: list[str] = field(default_factory=list)   # your existing MinIO TagSet pattern
-    tenant_id: str | None = None                     # multi-tenant scoping if applicable
+    owner_id: str | None = None                     
 
 
 @dataclass
@@ -89,7 +89,7 @@ class RoutingEntry:
     source_id: str
     tier: FormatTier
     title: str
-    description: str          # short LLM-generated or heuristic summary
+    description: str                    # short LLM-generated or heuristic summary
     schema_preview: str | None = None   # column names / table structure, semi/structured only
     backend_ref: str | None = None      # e.g. "duckdb://sales.parquet" or "postgres://.../orders"
 
